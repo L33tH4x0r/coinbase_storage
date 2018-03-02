@@ -6,6 +6,7 @@ class CreateArticle < ActiveRecord::Migration[5.1]
       t.string      :title
       t.datetime    :published_at
       t.string      :url
+      t.string      :identifier
     end
   end
 end

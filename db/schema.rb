@@ -22,16 +22,19 @@ ActiveRecord::Schema.define(version: 20180302181252) do
     t.string "title"
     t.datetime "published_at"
     t.string "url"
+    t.string "identifier"
   end
 
   create_table "currencies", force: :cascade do |t|
     t.string "code"
+    t.integer "article_id"
   end
 
   create_table "votes", force: :cascade do |t|
-    t.boolean "negative"
-    t.boolean "positive"
-    t.boolean "important"
+    t.integer "negative", default: 0
+    t.integer "positive", default: 0
+    t.integer "important", default: 0
+    t.integer "article_id"
   end
 
 end
