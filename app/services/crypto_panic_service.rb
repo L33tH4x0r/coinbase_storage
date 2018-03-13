@@ -4,9 +4,21 @@ class CryptoPanicService
   end
 
   def call
-    # call crypto panic - Desi
-    # https://cryptopanic.com/api/posts/?auth_token=@token&currencies=BTC&page=1
-      # Loop through jobs / sanitize- Jia
-        # Store in database - Heidi
+      # Loop through api pages
+
+          # Get articles from crypopanic
+
+          # loop through results
+
+              # Store Article
+
+  end
+
+  def get_articles
+
+  end
+
+  def store_articles
+
   end
 end
