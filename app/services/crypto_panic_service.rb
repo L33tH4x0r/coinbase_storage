@@ -33,10 +33,12 @@ class CryptoPanicService
   end
 
   def store_articles(result)
-    db_article = Article.create(domain: result["domain"], title: result["title"], published_at: DateTime.iso8601(result["published_at"]), identifier: result["id"])
-    db_article.votes << Vote.create(positive: result["votes"]["positive"].to_i, negative: result["votes"]["negative"], important: result["votes"]["important"])
-    result["currencies"].each do |currency|
-      db_article.currencies << Currency.create(code: currency["code"])
+    unless Article.find_by(identifier: result["id"])
+      db_article = Article.create(domain: result["domain"], title: result["title"], published_at: DateTime.iso8601(result["published_at"]), identifier: result["id"])
+      db_article.votes << Vote.create(positive: result["votes"]["positive"].to_i, negative: result["votes"]["negative"], important: result["votes"]["important"])
+      result["currencies"].each do |currency|
+        db_article.currencies << Currency.create(code: currency["code"])
+      end
     end
   end
 end
