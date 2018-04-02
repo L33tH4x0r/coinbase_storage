@@ -4,7 +4,14 @@ class ArticleQueryService
       unless params[:start] || params[:end]
         return create_response(Article.all)
       else
-
+        if params[:start] && params[:end]
+          collection = Article.where("published_at >= ?", DateTime.parse(params[:start])).where("published_at <= ?", DateTime.parse(params[:end]))
+        elsif params[:start]
+          collection = Article.where("published_at >= ?", DateTime.parse(params[:start]))
+        else
+          collection = Article.where("published_at <= ?", DateTime.parse(params[:end]))
+        end
+        return create_response(collection)
       end
     end
     private
