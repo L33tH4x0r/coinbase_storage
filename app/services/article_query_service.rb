@@ -1,6 +1,12 @@
 class ArticleQueryService
   class << self
     def query(params)
+      @page_count = params[:page_count] || 100
+      @page_count = @page_count.to_i
+
+      @page       = params[:page] || 1
+      @page       = @page.to_i
+
       unless params[:start] || params[:end]
         return create_response(Article.all)
       else
@@ -17,6 +23,7 @@ class ArticleQueryService
     private
     def create_response(articles)
       return_articles = []
+      # Get all articles
       articles.each do |article|
         article_response = article.as_json
         article_response[:currencies] = []
@@ -29,8 +36,26 @@ class ArticleQueryService
         end
         return_articles << article_response
       end
-      return {count: return_articles.count, articles: return_articles}
+      # paginate
+      pagination = paginate_articles(return_articles)
+      return {total: return_articles.count,
+              page: @page,
+              page_count: @page_count,
+              total_pages: pagination[:total_pages],
+              articles: pagination[:articles]}
     end
 
+    def paginate_articles(articles)
+      total_pages = (articles.count / @page_count).floor
+      pagination = {total_pages: total_pages}
+
+      start_index = (@page-1)*@page_count
+      end_index   = @page*(@page_count - 1)
+      if end_index > articles.count
+        end_index = articles.count - 1
+      end
+      pagination[:articles] = articles[start_index .. end_index]
+      return pagination
+    end
   end
 end
