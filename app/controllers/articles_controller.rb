@@ -1,5 +1,5 @@
 class ArticlesController < ApplicationController
   def index
-    json_response Article.all.to_json
+    json_response ArticleQueryService.query(params)
   end
 end
