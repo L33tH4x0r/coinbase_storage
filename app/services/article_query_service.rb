@@ -46,7 +46,7 @@ class ArticleQueryService
     end
 
     def paginate_articles(articles)
-      total_pages = (articles.count / @page_count).floor
+      total_pages = (articles.count / @page_count).ceil
       pagination = {total_pages: total_pages}
 
       start_index = (@page-1)*@page_count
