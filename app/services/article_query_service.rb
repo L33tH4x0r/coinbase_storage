@@ -7,6 +7,9 @@ class ArticleQueryService
       @page       = params[:page] || 1
       @page       = @page.to_i
 
+      @start = params[:start]
+      @end = params[:end]
+
       unless params[:start] || params[:end]
         return create_response(Article.all)
       else
@@ -38,11 +41,19 @@ class ArticleQueryService
       end
       # paginate
       pagination = paginate_articles(return_articles)
+      if pagination[:articles]
+        current_count = pagination[:articles].count
+      else
+        current_count = 0
+      end
+      
       return {total: return_articles.count,
               page: @page,
               page_count: @page_count,
-              current_count: pagination[:articles].count, 
+              current_count: current_count,
               total_pages: pagination[:total_pages],
+              start: @start,
+              end: @end,
               articles: pagination[:articles]}
     end
 
