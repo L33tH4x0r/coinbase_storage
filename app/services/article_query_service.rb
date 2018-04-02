@@ -41,6 +41,7 @@ class ArticleQueryService
       return {total: return_articles.count,
               page: @page,
               page_count: @page_count,
+              current_count: pagination[:articles].count, 
               total_pages: pagination[:total_pages],
               articles: pagination[:articles]}
     end
@@ -54,7 +55,7 @@ class ArticleQueryService
       if end_index > articles.count
         end_index = -1
       end
-      
+
       pagination[:articles] = articles[start_index .. end_index]
       return pagination
     end
