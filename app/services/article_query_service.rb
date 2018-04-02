@@ -29,7 +29,7 @@ class ArticleQueryService
         end
         return_articles << article_response
       end
-      return return_articles
+      return {count: return_articles.count, articles: return_articles}
     end
 
   end
