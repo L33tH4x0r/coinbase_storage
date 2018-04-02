@@ -50,9 +50,9 @@ class ArticleQueryService
       pagination = {total_pages: total_pages}
 
       start_index = (@page-1)*@page_count
-      end_index   = @page*(@page_count - 1)
+      end_index   = @page*(@page_count)-1
       if end_index > articles.count
-        end_index = articles.count - 1
+        end_index = -1
       end
       pagination[:articles] = articles[start_index .. end_index]
       return pagination
