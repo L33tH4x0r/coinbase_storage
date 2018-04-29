@@ -9,21 +9,41 @@ class ArticleQueryService
 
       @start = params[:start]
       @end = params[:end]
+      @params = params
 
-      unless params[:start] || params[:end]
-        return create_response(Article.all)
+      unless @params[:start] || @params[:end]
+        return create_response(get_all_articles)
       else
-        if params[:start] && params[:end]
-          collection = Article.where("published_at >= ?", DateTime.parse(params[:start])).where("published_at <= ?", DateTime.parse(params[:end]))
-        elsif params[:start]
-          collection = Article.where("published_at >= ?", DateTime.parse(params[:start]))
+        if @params[:start] && @params[:end]
+          collection = get_start_articles(get_end_articles)
+        elsif @params[:start]
+          collection = get_start_articles
         else
-          collection = Article.where("published_at <= ?", DateTime.parse(params[:end]))
+          collection = get_end_articles
         end
         return create_response(collection)
       end
     end
     private
+    def get_all_articles
+      Article.limit(@page_count).offset(@page_count*(@page-1))
+    end
+
+    def get_start_articles(articles = nil)
+      unless opts[:articles]
+        Article.where("published_at >= ?", DateTime.parse(@params[:start]))
+      else
+        articles.where("published_at >= ?", DateTime.parse(@params[:start]))
+      end
+    end
+
+    def get_end_articles(articles = nil)
+      unless articles
+        Article.where("published_at <= ?", DateTime.parse(@params[:end]))
+      else
+        articles.where("published_at <= ?", DateTime.parse(@params[:end]))
+      end
+    end
     def create_response(articles)
       return_articles = []
       # Get all articles
@@ -46,7 +66,7 @@ class ArticleQueryService
       else
         current_count = 0
       end
-      
+
       return {total: return_articles.count,
               page: @page,
               page_count: @page_count,
