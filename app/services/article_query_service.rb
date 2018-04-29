@@ -46,7 +46,7 @@ class ArticleQueryService
     def create_response(articles)
       paginated_articles = paginate_articles(articles)
 
-      return_articles = get_return_articles(paginate_articles)
+      return_articles = get_return_articles(paginated_articles)
 
       return {total: articles.count,
               page: @page,
