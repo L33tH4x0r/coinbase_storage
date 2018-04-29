@@ -44,15 +44,15 @@ class ArticleQueryService
     end
 
     def create_response(articles)
-      return_articles = get_return_articles(articles)
+      json_articles = get_return_articles(articles)
 
-      paginated_articles = paginate_articles(return_articles)
+      paginated_articles = paginate_articles(json_articles)
 
-      return {total: return_articles.count,
+      return {total: articles.count,
               page: @page,
               page_count: @page_count,
               current_count: get_current_count(paginated_articles),
-              total_pages: get_total_pages(paginated_articles.count),
+              total_pages: get_total_pages(articles.count),
               start: @start,
               end: @end,
               articles: paginated_articles}
