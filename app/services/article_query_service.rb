@@ -9,17 +9,16 @@ class ArticleQueryService
 
       @start = params[:start]
       @end = params[:end]
-      @params = params
 
-      unless @params[:start] || @params[:end]
-        return create_response(get_all_articles)
+      unless params[:start] || params[:end]
+        return create_response(get_all_articles, Article.count)
       else
-        if @params[:start] && @params[:end]
-          collection = get_start_articles(get_end_articles)
-        elsif @params[:start]
-          collection = get_start_articles
+        if params[:start] && params[:end]
+          collection = Article.where("published_at >= ?", DateTime.parse(params[:start])).where("published_at <= ?", DateTime.parse(params[:end]))
+        elsif params[:start]
+          collection = Article.where("published_at >= ?", DateTime.parse(params[:start]))
         else
-          collection = get_end_articles
+          collection = Article.where("published_at <= ?", DateTime.parse(params[:end]))
         end
         return create_response(collection)
       end
@@ -29,22 +28,7 @@ class ArticleQueryService
       Article.limit(@page_count).offset(@page_count*(@page-1))
     end
 
-    def get_start_articles(articles = nil)
-      unless opts[:articles]
-        Article.where("published_at >= ?", DateTime.parse(@params[:start]))
-      else
-        articles.where("published_at >= ?", DateTime.parse(@params[:start]))
-      end
-    end
-
-    def get_end_articles(articles = nil)
-      unless articles
-        Article.where("published_at <= ?", DateTime.parse(@params[:end]))
-      else
-        articles.where("published_at <= ?", DateTime.parse(@params[:end]))
-      end
-    end
-    def create_response(articles)
+    def create_response(articles, total = nil)
       return_articles = []
       # Get all articles
       articles.each do |article|
@@ -67,7 +51,7 @@ class ArticleQueryService
         current_count = 0
       end
 
-      return {total: return_articles.count,
+      return {total: total || return_articles.count,
               page: @page,
               page_count: @page_count,
               current_count: current_count,
