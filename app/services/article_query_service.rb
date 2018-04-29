@@ -7,11 +7,11 @@ class ArticleQueryService
       @page       = params[:page] || 1
       @page       = @page.to_i
 
-      @start = params[:start]
-      @end = params[:end]
+      @start      = params[:start]
+      @end        = params[:end]
 
       unless params[:start] || params[:end]
-        return create_response(get_all_articles, Article.count)
+        return get_all_articles
       else
         if params[:start] && params[:end]
           collection = Article.where("published_at >= ?", DateTime.parse(params[:start])).where("published_at <= ?", DateTime.parse(params[:end]))
@@ -25,24 +25,34 @@ class ArticleQueryService
     end
     private
     def get_all_articles
-      Article.limit(@page_count).offset(@page_count*(@page-1))
-    end
+      articles = Article.limit(@page_count).offset(@page_count*(@page-1))
+      total = Article.count
 
-    def create_response(articles, total = nil)
       return_articles = get_return_articles(articles)
 
-      articles = paginate_articles(return_articles, total)
-      if
-        current_count = articles.count
-      else
-        current_count = 0
-      end
 
-      return {total: total || return_articles.count,
+      return {
+        total: total,
+        page: @page,
+        page_count: @page_count,
+        current_count: get_current_count(return_articles),
+        total_pages: get_total_pages(total),
+        start: @start,
+        end: @end,
+        articles: return_articles
+      }
+    end
+
+    def create_response(articles)
+      return_articles = get_return_articles(articles)
+
+      articles = paginate_articles(return_articles)
+
+      return {total: return_articles.count,
               page: @page,
               page_count: @page_count,
-              current_count: current_count,
-              total_pages: @total_pages,
+              current_count: get_current_count(return_articles),
+              total_pages: get_total_pages(articles.count),
               start: @start,
               end: @end,
               articles: articles}
@@ -65,9 +75,7 @@ class ArticleQueryService
       end
     end
 
-    def paginate_articles(articles, total)
-      total_articles = total || articles.count
-      @total_pages = (total_articles.to_f / @page_count.to_f).ceil
+    def paginate_articles(articles)
 
       start_index = (@page-1)*@page_count
       end_index   = @page*(@page_count)-1
@@ -76,6 +84,18 @@ class ArticleQueryService
       end
 
       return articles[start_index .. end_index]
+    end
+
+    def get_current_count(articles)
+      if articles
+        articles.count
+      else
+        0
+      end
+    end
+
+    def get_total_pages articles_count
+      (articles_count.to_f / @page_count.to_f).ceil
     end
   end
 end
