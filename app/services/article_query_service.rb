@@ -29,6 +29,26 @@ class ArticleQueryService
     end
 
     def create_response(articles, total = nil)
+      return_articles = get_return_articles(articles)
+
+      articles = paginate_articles(return_articles, total)
+      if
+        current_count = articles.count
+      else
+        current_count = 0
+      end
+
+      return {total: total || return_articles.count,
+              page: @page,
+              page_count: @page_count,
+              current_count: current_count,
+              total_pages: @total_pages,
+              start: @start,
+              end: @end,
+              articles: articles}
+    end
+
+    def get_return_articles(articles)
       return_articles = []
       # Get all articles
       articles.each do |article|
@@ -43,27 +63,11 @@ class ArticleQueryService
         end
         return_articles << article_response
       end
-      # paginate
-      pagination = paginate_articles(return_articles)
-      if pagination[:articles]
-        current_count = pagination[:articles].count
-      else
-        current_count = 0
-      end
-
-      return {total: total || return_articles.count,
-              page: @page,
-              page_count: @page_count,
-              current_count: current_count,
-              total_pages: pagination[:total_pages],
-              start: @start,
-              end: @end,
-              articles: pagination[:articles]}
     end
 
-    def paginate_articles(articles)
-      total_pages = (articles.count.to_f / @page_count.to_f).ceil
-      pagination = {total_pages: total_pages}
+    def paginate_articles(articles, total)
+      total_articles = total || articles.count
+      @total_pages = (total_articles.to_f / @page_count.to_f).ceil
 
       start_index = (@page-1)*@page_count
       end_index   = @page*(@page_count)-1
@@ -71,8 +75,7 @@ class ArticleQueryService
         end_index = -1
       end
 
-      pagination[:articles] = articles[start_index .. end_index]
-      return pagination
+      return articles[start_index .. end_index]
     end
   end
 end
