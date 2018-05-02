@@ -1,7 +1,7 @@
 class ArticleQueryService
   class << self
     def query(params)
-      @page_count = params[:page_count] || 100
+      @page_count = params[:page_count] || 300
       @page_count = @page_count.to_i
 
       @page       = params[:page] || 1
